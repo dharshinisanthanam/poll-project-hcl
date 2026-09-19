@@ -16,14 +16,22 @@ COPY backend/ ./
 # Build optimized binary
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /app/server ./cmd/server
 
-# Final minimal scratch/alpine image
+# Final runtime image with embedded Redis
 FROM alpine:3.20
 
 WORKDIR /app
-RUN apk --no-cache add ca-certificates tzdata
+RUN apk --no-cache add ca-certificates tzdata redis
 
 COPY --from=builder /app/server /app/server
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
+
+ENV PORT=8080
+ENV REDIS_URL=redis://127.0.0.1:6379
+ENV MONGO_DB=livepolling
+ENV GIN_MODE=release
 
 EXPOSE 8080
 
-CMD ["/app/server"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+

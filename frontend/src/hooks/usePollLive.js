@@ -8,18 +8,39 @@ export function usePollLive(pollIdOrShareCode, onUpdate) {
   const connect = useCallback(() => {
     if (!pollIdOrShareCode) return;
 
-    // Determine WS protocol and host safely for any device
+    // Determine WS protocol and host safely for cloud deployments (Vercel -> Render)
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const rawWsUrl = import.meta.env.VITE_WS_URL;
-    let host = `${protocol}//${window.location.host}`;
-    if (rawWsUrl && rawWsUrl.trim() !== '') {
-      if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && rawWsUrl.includes('localhost')) {
-        host = `${protocol}//${window.location.host}`;
-      } else {
-        host = rawWsUrl.trim();
+    const rawWsUrl = (import.meta.env.VITE_WS_URL || '').trim();
+    const rawApiUrl = (import.meta.env.VITE_API_URL || '').trim();
+
+    let host = '';
+
+    if (rawWsUrl) {
+      let cleaned = rawWsUrl.replace(/\/+$/, '');
+      if (cleaned.startsWith('http://')) {
+        cleaned = 'ws://' + cleaned.slice(7);
+      } else if (cleaned.startsWith('https://')) {
+        cleaned = 'wss://' + cleaned.slice(8);
+      } else if (!cleaned.startsWith('ws://') && !cleaned.startsWith('wss://')) {
+        cleaned = `${protocol}//${cleaned}`;
       }
+      host = cleaned;
+    } else if (rawApiUrl && rawApiUrl.startsWith('http')) {
+      // Auto-derive WebSocket host from VITE_API_URL (e.g. https://poll.onrender.com/api -> wss://poll.onrender.com)
+      try {
+        const parsed = new URL(rawApiUrl);
+        const wsProto = parsed.protocol === 'https:' ? 'wss:' : 'ws:';
+        host = `${wsProto}//${parsed.host}`;
+      } catch (e) {
+        host = `${protocol}//${window.location.host}`;
+      }
+    } else {
+      host = `${protocol}//${window.location.host}`;
     }
+
+    host = host.replace(/\/+$/, '');
     const wsUrl = `${host}/ws/polls/${pollIdOrShareCode}`;
+
 
     try {
       const socket = new WebSocket(wsUrl);

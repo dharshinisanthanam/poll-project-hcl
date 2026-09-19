@@ -1,14 +1,21 @@
 import { getVoterToken } from './voter';
 
-const rawApiUrl = import.meta.env.VITE_API_URL;
+const rawApiUrl = (import.meta.env.VITE_API_URL || '').trim();
 let API_BASE = '/api';
-if (rawApiUrl && rawApiUrl.trim() !== '') {
+
+if (rawApiUrl) {
   if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && rawApiUrl.includes('localhost')) {
     API_BASE = '/api';
   } else {
-    API_BASE = rawApiUrl.trim();
+    let cleaned = rawApiUrl.replace(/\/+$/, '');
+    // Ensure /api suffix exists if given an absolute URL pointing to root domain
+    if (cleaned.startsWith('http') && !cleaned.endsWith('/api')) {
+      cleaned += '/api';
+    }
+    API_BASE = cleaned;
   }
 }
+
 
 function getAuthHeader() {
   const token = localStorage.getItem('auth_token');
