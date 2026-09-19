@@ -10,7 +10,7 @@ export function usePollLive(pollIdOrShareCode, onUpdate) {
 
     // Determine WS protocol and host
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = import.meta.env.VITE_WS_URL || 'ws://localhost:8080';
+    const host = import.meta.env.VITE_WS_URL || `${protocol}//${window.location.host}`;
     const wsUrl = `${host}/ws/polls/${pollIdOrShareCode}`;
 
     try {

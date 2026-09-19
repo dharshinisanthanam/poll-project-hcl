@@ -3,6 +3,9 @@ package routes
 import (
 	"context"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"live-polling/backend/config"
@@ -26,13 +29,41 @@ func SetupRouter(
 	// Global Middlewares
 	r.Use(middleware.CORSMiddleware(cfg.FrontendURL))
 
+	// Locate frontend dist directory for unified full-stack serving
+	distDir := ""
+	candidates := []string{
+		"../frontend/dist",
+		"./frontend/dist",
+		"e:/pollhcl/frontend/dist",
+	}
+	for _, candidate := range candidates {
+		if info, err := os.Stat(candidate); err == nil && info.IsDir() {
+			distDir = candidate
+			break
+		}
+	}
+
+	if distDir != "" {
+		assetsDir := filepath.Join(distDir, "assets")
+		if info, err := os.Stat(assetsDir); err == nil && info.IsDir() {
+			r.Static("/assets", assetsDir)
+		}
+	}
+
 	// Controllers
 	authCtrl := controllers.NewAuthController(mongoRepo, cfg.JWTSecret)
 	pollCtrl := controllers.NewPollController(mongoRepo, redisRepo)
 	voteCtrl := controllers.NewVoteController(mongoRepo, redisRepo)
 
-	// Root and API status endpoints
+	// Root endpoint: Serves React SPA if built, or API status
 	r.GET("/", func(c *gin.Context) {
+		if distDir != "" {
+			indexFile := filepath.Join(distDir, "index.html")
+			if _, err := os.Stat(indexFile); err == nil {
+				c.File(indexFile)
+				return
+			}
+		}
 		c.JSON(http.StatusOK, gin.H{
 			"status":    "online",
 			"service":   "Live Polling Backend API",
@@ -128,6 +159,30 @@ func SetupRouter(
 			}
 		}
 		hub.ServeWs(c.Writer, c.Request, pollID)
+	})
+
+	// Fallback route: static assets or React SPA navigation
+	r.NoRoute(func(c *gin.Context) {
+		path := c.Request.URL.Path
+		if strings.HasPrefix(path, "/api") || strings.HasPrefix(path, "/ws") {
+			c.JSON(http.StatusNotFound, gin.H{"error": "API route not found"})
+			return
+		}
+		if distDir != "" {
+			// Check if file exists directly in dist (e.g. /favicon.svg, /icons.svg)
+			filePath := filepath.Join(distDir, filepath.Clean(path))
+			if info, err := os.Stat(filePath); err == nil && !info.IsDir() {
+				c.File(filePath)
+				return
+			}
+			// Fallback to index.html for client-side routing
+			indexFile := filepath.Join(distDir, "index.html")
+			if _, err := os.Stat(indexFile); err == nil {
+				c.File(indexFile)
+				return
+			}
+		}
+		c.JSON(http.StatusNotFound, gin.H{"error": "Page not found"})
 	})
 
 	return r
