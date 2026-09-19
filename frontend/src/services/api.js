@@ -1,19 +1,21 @@
 import { getVoterToken } from './voter';
 
+const LIVE_BACKEND_ORIGIN = 'https://intervention-consistent-feelings-benchmark.trycloudflare.com';
 const rawApiUrl = (import.meta.env.VITE_API_URL || '').trim();
 let API_BASE = '/api';
 
-if (rawApiUrl) {
+if (rawApiUrl && rawApiUrl !== '/api') {
   if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && rawApiUrl.includes('localhost')) {
-    API_BASE = '/api';
+    API_BASE = `${LIVE_BACKEND_ORIGIN}/api`;
   } else {
     let cleaned = rawApiUrl.replace(/\/+$/, '');
-    // Ensure /api suffix exists if given an absolute URL pointing to root domain
     if (cleaned.startsWith('http') && !cleaned.endsWith('/api')) {
       cleaned += '/api';
     }
     API_BASE = cleaned;
   }
+} else if (typeof window !== 'undefined' && (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('netlify.app'))) {
+  API_BASE = `${LIVE_BACKEND_ORIGIN}/api`;
 }
 
 
