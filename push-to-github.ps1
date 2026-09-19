@@ -4,10 +4,11 @@ param (
     [string]$RepoUrl
 )
 
-$GitExe = Join-Path $PSScriptRoot "tools\git\cmd\git.exe"
-
-if (-not (Test-Path $GitExe)) {
-    $GitExe = "git"
+$GitExe = "git"
+if (Test-Path "C:\Program Files\Git\cmd\git.exe") {
+    $GitExe = "C:\Program Files\Git\cmd\git.exe"
+} elseif (Test-Path (Join-Path $PSScriptRoot "tools\git\cmd\git.exe")) {
+    $GitExe = Join-Path $PSScriptRoot "tools\git\cmd\git.exe"
 }
 
 Write-Host "==========================================" -ForegroundColor Cyan
