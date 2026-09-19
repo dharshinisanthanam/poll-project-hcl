@@ -12,6 +12,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"github.com/redis/go-redis/v9"
 )
 
 func main() {
@@ -86,7 +88,37 @@ func main() {
 	voteCount, _ := votesColl.CountDocuments(ctx, bson.M{})
 	fmt.Printf("\n--- Votes Collection (%d records) ---\n", voteCount)
 
+	// Verify Redis Connection & Live Hashes
 	fmt.Println("\n==================================================")
-	fmt.Println("  MongoDB is 100% active, connected and storing data!")
+	fmt.Println("  Redis Database Connection & Verification        ")
+	fmt.Println("==================================================")
+	fmt.Printf("Attempting to connect to Redis at: %s\n", cfg.RedisURL)
+
+	opts, err := redis.ParseURL(cfg.RedisURL)
+	if err != nil {
+		opts = &redis.Options{Addr: cfg.RedisURL}
+	}
+	rClient := redis.NewClient(opts)
+	defer rClient.Close()
+
+	rCtx, rCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer rCancel()
+
+	if err := rClient.Ping(rCtx).Err(); err != nil {
+		log.Fatalf("❌ FAILED to connect to Redis: %v\nCheck if Redis is running on %s", err, cfg.RedisURL)
+	}
+	fmt.Println("✅ CONNECTED SUCCESSFULLY to Redis!")
+
+	keys, _ := rClient.Keys(rCtx, "poll:*:votes").Result()
+	fmt.Printf("Active Redis Poll Hashes (%d active polls in Redis):\n", len(keys))
+	for i, k := range keys {
+		if i < 5 {
+			counts, _ := rClient.HGetAll(rCtx, k).Result()
+			fmt.Printf("  [%d] %s => %v\n", i+1, k, counts)
+		}
+	}
+
+	fmt.Println("\n==================================================")
+	fmt.Println("  BOTH MongoDB & Redis are 100% CONNECTED & ACTIVE! ")
 	fmt.Println("==================================================")
 }
