@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build artifacts
+frontend/dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Environment Variables
+.env
+*.env.local
+
+# Local Tools & DB Data
+tools/
+data/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
