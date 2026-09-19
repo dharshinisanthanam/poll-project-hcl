@@ -17,7 +17,15 @@ func main() {
 	// Connect to MongoDB
 	mongoRepo, err := repository.NewMongoRepo(cfg.MongoURI, cfg.MongoDB)
 	if err != nil {
-		log.Fatalf("CRITICAL: Failed to connect to MongoDB at %s: %v", cfg.MongoURI, err)
+		log.Printf("================================================================================")
+		log.Printf("CRITICAL: Failed to connect to MongoDB at %s: %v", cfg.MongoURI, err)
+		log.Printf(">> For Cloud Deployment (Render / Docker):")
+		log.Printf("   Please configure the MONGO_URI environment variable in your dashboard settings")
+		log.Printf("   with your MongoDB Atlas URI: mongodb+srv://<user>:<password>@cluster0.mongodb.net/livepolling?retryWrites=true&w=majority")
+		log.Printf(">> For Local Development:")
+		log.Printf("   Ensure MongoDB daemon is running locally: .\\tools\\mongo\\bin\\mongod.exe or run .\\run-local.ps1")
+		log.Printf("================================================================================")
+		log.Fatalf("Fatal MongoDB connection error: %v", err)
 	}
 	defer mongoRepo.Close()
 	log.Printf("Connected successfully to MongoDB at %s", cfg.MongoURI)
