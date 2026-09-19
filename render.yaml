@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: poll-project-hcl
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: GIN_MODE
+        value: release
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MONGO_DB
+        value: livepolling
+      - key: REDIS_URL
+        value: redis://127.0.0.1:6379
+      - key: MONGO_URI
+        sync: false

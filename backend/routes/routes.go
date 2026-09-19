@@ -32,6 +32,7 @@ func SetupRouter(
 	// Locate frontend dist directory for unified full-stack serving
 	distDir := ""
 	candidates := []string{
+		"/app/frontend/dist",
 		"../frontend/dist",
 		"./frontend/dist",
 		"e:/pollhcl/frontend/dist",
