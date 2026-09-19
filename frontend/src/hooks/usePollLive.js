@@ -8,9 +8,17 @@ export function usePollLive(pollIdOrShareCode, onUpdate) {
   const connect = useCallback(() => {
     if (!pollIdOrShareCode) return;
 
-    // Determine WS protocol and host
+    // Determine WS protocol and host safely for any device
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = import.meta.env.VITE_WS_URL || `${protocol}//${window.location.host}`;
+    const rawWsUrl = import.meta.env.VITE_WS_URL;
+    let host = `${protocol}//${window.location.host}`;
+    if (rawWsUrl && rawWsUrl.trim() !== '') {
+      if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && rawWsUrl.includes('localhost')) {
+        host = `${protocol}//${window.location.host}`;
+      } else {
+        host = rawWsUrl.trim();
+      }
+    }
     const wsUrl = `${host}/ws/polls/${pollIdOrShareCode}`;
 
     try {

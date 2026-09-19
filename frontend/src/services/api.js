@@ -1,6 +1,14 @@
 import { getVoterToken } from './voter';
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+const rawApiUrl = import.meta.env.VITE_API_URL;
+let API_BASE = '/api';
+if (rawApiUrl && rawApiUrl.trim() !== '') {
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && rawApiUrl.includes('localhost')) {
+    API_BASE = '/api';
+  } else {
+    API_BASE = rawApiUrl.trim();
+  }
+}
 
 function getAuthHeader() {
   const token = localStorage.getItem('auth_token');

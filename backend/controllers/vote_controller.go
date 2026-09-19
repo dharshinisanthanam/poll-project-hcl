@@ -27,10 +27,18 @@ func NewVoteController(mongoRepo *repository.MongoRepo, redisRepo *repository.Re
 	}
 }
 
-// Generate unique identifier combining client IP and client voter token
+// Generate unique identifier for voter session
 func generateVoterIdent(c *gin.Context, voterToken string, pollID string) string {
+	if voterToken != "" {
+		// Use unique client voter token from localStorage + pollID
+		// Allows multiple devices on the same Wi-Fi network to vote independently
+		raw := fmt.Sprintf("%s|%s", voterToken, pollID)
+		hash := sha256.Sum256([]byte(raw))
+		return hex.EncodeToString(hash[:])
+	}
+	// Fallback to client IP if voter token is missing
 	ip := c.ClientIP()
-	raw := fmt.Sprintf("%s|%s|%s", ip, voterToken, pollID)
+	raw := fmt.Sprintf("%s|%s", ip, pollID)
 	hash := sha256.Sum256([]byte(raw))
 	return hex.EncodeToString(hash[:])
 }

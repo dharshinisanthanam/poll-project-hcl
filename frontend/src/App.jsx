@@ -120,10 +120,18 @@ export default function App() {
               } 
             />
 
-            {/* Public Audience & Results Routes */}
+            {/* Public Audience & Results Routes (supports both /p/ and /poll/ paths) */}
+            <Route 
+              path="/p/:shareCode" 
+              element={<PublicPoll showToast={showToast} />} 
+            />
             <Route 
               path="/poll/:shareCode" 
               element={<PublicPoll showToast={showToast} />} 
+            />
+            <Route 
+              path="/p/:id/results" 
+              element={<PollResults showToast={showToast} />} 
             />
             <Route 
               path="/poll/:id/results" 
