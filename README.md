@@ -8,6 +8,10 @@
 [![Redis](https://img.shields.io/badge/Redis-7.0+-DC382D?style=flat&logo=redis)](https://redis.io)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/dharshinisanthanam/poll-project-hcl)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdharshinisanthanam%2Fpoll-project-hcl)
+
+
 ---
 
 ## 1. Project Overview
