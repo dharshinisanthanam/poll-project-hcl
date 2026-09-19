@@ -2,7 +2,7 @@
 $ErrorActionPreference = "Continue"
 
 Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host "  Live Polling Tool — Local Launcher      " -ForegroundColor Cyan
+Write-Host "  Live Polling Tool - Local Launcher      " -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 
 $WorkspaceRoot = $PSScriptRoot
@@ -13,7 +13,7 @@ $MongoPath = Join-Path $WorkspaceRoot "tools\mongo"
 # Add Go to PATH
 if (Test-Path $GoPath) {
     $env:PATH = "$GoPath;$env:PATH"
-    Write-Host "[✓] Go toolchain configured" -ForegroundColor Green
+    Write-Host "[OK] Go toolchain configured" -ForegroundColor Green
 }
 
 # 1. Start Redis
@@ -28,7 +28,7 @@ if (-not $redisRunning -and (Test-Path "$RedisPath\redis-server.exe")) {
     Start-Process -FilePath "$RedisPath\redis-server.exe" -ArgumentList "--port 6379" -WindowStyle Hidden
     Start-Sleep -Seconds 1
 } else {
-    Write-Host "[✓] Redis is already active on port 6379" -ForegroundColor Green
+    Write-Host "[OK] Redis is already active on port 6379" -ForegroundColor Green
 }
 
 # 2. Start MongoDB
@@ -47,7 +47,7 @@ if (-not $mongoRunning -and (Test-Path "$MongoPath\bin\mongod.exe")) {
     Start-Process -FilePath "$MongoPath\bin\mongod.exe" -ArgumentList "--dbpath `"$dataPath`" --port 27017 --bind_ip 127.0.0.1" -WindowStyle Hidden
     Start-Sleep -Seconds 2
 } else {
-    Write-Host "[✓] MongoDB is already active on port 27017" -ForegroundColor Green
+    Write-Host "[OK] MongoDB is already active on port 27017" -ForegroundColor Green
 }
 
 # 3. Start Backend Server

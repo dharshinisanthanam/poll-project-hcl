@@ -12,7 +12,7 @@ if (Test-Path "C:\Program Files\Git\cmd\git.exe") {
 }
 
 Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host "  Live Polling Tool — Push to GitHub      " -ForegroundColor Cyan
+Write-Host "  Live Polling Tool - Push to GitHub      " -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 
 if (-not $RepoUrl) {
@@ -32,7 +32,7 @@ Write-Host "[*] Pushing 'main' branch to GitHub..." -ForegroundColor Yellow
 & $GitExe push -u origin main
 
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "`n[✓] Successfully pushed to GitHub!" -ForegroundColor Green
+    Write-Host "`n[OK] Successfully pushed to GitHub!" -ForegroundColor Green
     Write-Host "Your public repository is live at: $RepoUrl" -ForegroundColor Cyan
 } else {
     Write-Host "`n[!] Push failed. Please verify that:" -ForegroundColor Red

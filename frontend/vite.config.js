@@ -1,6 +1,21 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
+const proxyConfig = {
+  '/api': {
+    target: 'http://127.0.0.1:8080',
+    changeOrigin: true,
+  },
+  '/health': {
+    target: 'http://127.0.0.1:8080',
+    changeOrigin: true,
+  },
+  '/ws': {
+    target: 'ws://127.0.0.1:8080',
+    ws: true,
+  },
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
@@ -8,19 +23,12 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5173,
     allowedHosts: ['.trycloudflare.com', 'strategies-handle-tire-another.trycloudflare.com', 'localhost', '127.0.0.1'],
-    proxy: {
-      '/api': {
-        target: 'http://127.0.0.1:8080',
-        changeOrigin: true,
-      },
-      '/health': {
-        target: 'http://127.0.0.1:8080',
-        changeOrigin: true,
-      },
-      '/ws': {
-        target: 'ws://127.0.0.1:8080',
-        ws: true,
-      },
-    },
+    proxy: proxyConfig,
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: 4173,
+    allowedHosts: ['.trycloudflare.com', 'localhost', '127.0.0.1'],
+    proxy: proxyConfig,
   },
 })

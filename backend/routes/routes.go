@@ -169,6 +169,10 @@ func SetupRouter(
 			c.JSON(http.StatusNotFound, gin.H{"error": "API route not found"})
 			return
 		}
+		if c.Request.Method != http.MethodGet && c.Request.Method != http.MethodHead {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Route not found"})
+			return
+		}
 		if distDir != "" {
 			// Check if file exists directly in dist (e.g. /favicon.svg, /icons.svg)
 			filePath := filepath.Join(distDir, filepath.Clean(path))

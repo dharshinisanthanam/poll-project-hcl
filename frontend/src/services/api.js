@@ -30,15 +30,31 @@ async function request(endpoint, options = {}) {
     ...options.headers,
   };
 
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
+  let response;
+  try {
+    response = await fetch(url, {
+      ...options,
+      headers,
+    });
+  } catch (networkErr) {
+    throw new Error('Unable to reach backend service. Please ensure the backend server is active and accessible.');
+  }
 
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    const errorMsg = data.error || data.message || `HTTP Error ${response.status}`;
+    let errorMsg = data.error || data.message;
+    if (!errorMsg) {
+      if (response.status === 405) {
+        errorMsg = 'Backend endpoint method not allowed (HTTP 405). If running in the cloud, verify that the backend is active and VITE_API_URL is configured.';
+      } else if (response.status === 404) {
+        errorMsg = 'Backend API endpoint not found (HTTP 404). Please ensure the backend server is running.';
+      } else if (response.status >= 500) {
+        errorMsg = `Backend server error (HTTP ${response.status}). Please check backend service logs.`;
+      } else {
+        errorMsg = `HTTP Error ${response.status}`;
+      }
+    }
     const err = new Error(errorMsg);
     err.status = response.status;
     err.data = data;
