@@ -1,6 +1,6 @@
 import { getVoterToken } from './voter';
 
-const LIVE_BACKEND_ORIGIN = 'https://intervention-consistent-feelings-benchmark.trycloudflare.com';
+const LIVE_BACKEND_ORIGIN = 'https://poll-project-hcl.onrender.com';
 const rawApiUrl = (import.meta.env.VITE_API_URL || '').trim();
 let API_BASE = '/api';
 
@@ -14,7 +14,7 @@ if (rawApiUrl && rawApiUrl !== '/api') {
     }
     API_BASE = cleaned;
   }
-} else if (typeof window !== 'undefined' && (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('netlify.app'))) {
+} else if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
   API_BASE = `${LIVE_BACKEND_ORIGIN}/api`;
 }
 

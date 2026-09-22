@@ -34,8 +34,8 @@ export function usePollLive(pollIdOrShareCode, onUpdate) {
       } catch (e) {
         host = `${protocol}//${window.location.host}`;
       }
-    } else if (typeof window !== 'undefined' && (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('netlify.app'))) {
-      host = 'wss://intervention-consistent-feelings-benchmark.trycloudflare.com';
+    } else if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      host = 'wss://poll-project-hcl.onrender.com';
     } else {
       host = `${protocol}//${window.location.host}`;
     }

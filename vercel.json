@@ -4,11 +4,11 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://intervention-consistent-feelings-benchmark.trycloudflare.com/api/$1"
+      "destination": "https://poll-project-hcl.onrender.com/api/$1"
     },
     {
       "source": "/health",
-      "destination": "https://intervention-consistent-feelings-benchmark.trycloudflare.com/health"
+      "destination": "https://poll-project-hcl.onrender.com/health"
     },
     {
       "source": "/((?!api|health|ws).*)",
