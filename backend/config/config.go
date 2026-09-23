@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -20,7 +21,10 @@ func LoadConfig() *Config {
 	_ = godotenv.Load()
 
 	port := getEnv("PORT", "8080")
-	mongoURI := getEnv("MONGO_URI", "mongodb://127.0.0.1:27017")
+	mongoURI := getFirstEnv(
+		[]string{"MONGO_URI", "MONGODB_URI", "MONGO_URL", "MONGODB_URL"},
+		"mongodb+srv://dharshinisanthanam6:dharshinisanthanam6@cluster0.hh1zzot.mongodb.net/livepolling?retryWrites=true&w=majority",
+	)
 	mongoDB := getEnv("MONGO_DB", "livepolling")
 	redisURL := getEnv("REDIS_URL", "redis://127.0.0.1:6379")
 	jwtSecret := getEnv("JWT_SECRET", "guvi-live-polling-developer-internship-jwt-secret-key-2026")
@@ -37,8 +41,17 @@ func LoadConfig() *Config {
 }
 
 func getEnv(key, defaultVal string) string {
-	if val := os.Getenv(key); val != "" {
+	if val := strings.TrimSpace(os.Getenv(key)); val != "" {
 		return val
+	}
+	return defaultVal
+}
+
+func getFirstEnv(keys []string, defaultVal string) string {
+	for _, k := range keys {
+		if val := strings.TrimSpace(os.Getenv(k)); val != "" {
+			return val
+		}
 	}
 	return defaultVal
 }

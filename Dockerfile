@@ -43,6 +43,7 @@ RUN chmod +x /app/docker-entrypoint.sh
 ENV PORT=10000
 ENV REDIS_URL=redis://127.0.0.1:6379
 ENV MONGO_DB=livepolling
+ENV MONGO_URI=mongodb+srv://dharshinisanthanam6:dharshinisanthanam6@cluster0.hh1zzot.mongodb.net/livepolling?retryWrites=true&w=majority
 ENV GIN_MODE=release
 
 EXPOSE 10000

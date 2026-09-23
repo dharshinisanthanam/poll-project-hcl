@@ -19,7 +19,7 @@ services:
       - key: REDIS_URL
         value: redis://127.0.0.1:6379
       - key: MONGO_URI
-        sync: false
+        value: mongodb+srv://dharshinisanthanam6:dharshinisanthanam6@cluster0.hh1zzot.mongodb.net/livepolling?retryWrites=true&w=majority
       - key: FRONTEND_URL
         value: "*"
 
