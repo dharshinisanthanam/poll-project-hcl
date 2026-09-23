@@ -97,13 +97,22 @@ func (ac *AuthController) Login(c *gin.Context) {
 	}
 
 	identifier := strings.TrimSpace(req.Email)
+	if identifier == "" {
+		identifier = strings.TrimSpace(req.Identifier)
+	}
+
+	if identifier == "" || strings.TrimSpace(req.Password) == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Please enter both email/username and password"})
+		return
+	}
+
 	user, err := ac.mongoRepo.GetUserByEmailOrName(c.Request.Context(), identifier)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email/username or password"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error: " + err.Error()})
 		return
 	}
 

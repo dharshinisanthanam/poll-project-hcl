@@ -4,11 +4,11 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://poll-project-hcl.onrender.com/api/$1"
+      "destination": "https://poll-project-hcl-1.onrender.com/api/$1"
     },
     {
       "source": "/health",
-      "destination": "https://poll-project-hcl.onrender.com/health"
+      "destination": "https://poll-project-hcl-1.onrender.com/health"
     },
     {
       "source": "/((?!api|health|ws).*)",

@@ -21,8 +21,9 @@ type SignupRequest struct {
 }
 
 type LoginRequest struct {
-	Email    string `json:"email" binding:"required"` // Accepts email or username
-	Password string `json:"password" binding:"required"`
+	Email      string `json:"email"`      // Accepts email or username
+	Identifier string `json:"identifier"` // Supports alternative identifier key
+	Password   string `json:"password" binding:"required"`
 }
 
 type UserResponse struct {

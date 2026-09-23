@@ -1,6 +1,6 @@
 import { getVoterToken } from './voter';
 
-const LIVE_BACKEND_ORIGIN = 'https://poll-project-hcl.onrender.com';
+const LIVE_BACKEND_ORIGIN = 'https://poll-project-hcl-1.onrender.com';
 const rawApiUrl = (import.meta.env.VITE_API_URL || '').trim();
 let API_BASE = '/api';
 
@@ -75,10 +75,10 @@ export const api = {
     });
   },
 
-  async login(email, password) {
+  async login(identifier, password) {
     return request('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email: identifier, identifier, password }),
     });
   },
 

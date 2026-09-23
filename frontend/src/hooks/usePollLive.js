@@ -35,7 +35,7 @@ export function usePollLive(pollIdOrShareCode, onUpdate) {
         host = `${protocol}//${window.location.host}`;
       }
     } else if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-      host = 'wss://poll-project-hcl.onrender.com';
+      host = 'wss://poll-project-hcl-1.onrender.com';
     } else {
       host = `${protocol}//${window.location.host}`;
     }
