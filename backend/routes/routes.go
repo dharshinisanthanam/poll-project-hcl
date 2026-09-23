@@ -78,21 +78,38 @@ func SetupRouter(
 		})
 	})
 
-	// Health check endpoint
+	// Health check endpoint (always returns HTTP 200 so Render/Docker keeps the container live)
 	r.GET("/health", func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(c.Request.Context(), 2*time.Second)
 		defer cancel()
 
-		redisPing := redisRepo.GetClient().Ping(ctx).Err() == nil
+		redisPing := false
+		if redisRepo != nil && redisRepo.GetClient() != nil {
+			redisPing = redisRepo.GetClient().Ping(ctx).Err() == nil
+		}
 
-		c.JSON(http.StatusOK, gin.H{
-			"status":    "healthy",
+		mongoConnected := mongoRepo != nil && mongoRepo.IsConnected()
+
+		overallStatus := "healthy"
+		if !mongoConnected || !redisPing {
+			overallStatus = "degraded"
+		}
+
+		res := gin.H{
+			"status":    overallStatus,
 			"timestamp": time.Now(),
 			"services": gin.H{
-				"mongodb": true,
+				"mongodb": mongoConnected,
 				"redis":   redisPing,
 			},
-		})
+		}
+
+		if !mongoConnected && mongoRepo != nil {
+			res["mongo_error"] = mongoRepo.GetLastError()
+			res["instructions"] = "Please configure MONGO_URI in your Render dashboard environment variables."
+		}
+
+		c.JSON(http.StatusOK, res)
 	})
 
 	api := r.Group("/api")
@@ -102,10 +119,25 @@ func SetupRouter(
 				"status":    "online",
 				"message":   "Live Polling API endpoints are active",
 				"timestamp": time.Now(),
+				"database":  mongoRepo != nil && mongoRepo.IsConnected(),
 			})
 		})
+
+		// DB Readiness check for data endpoints
+		dbCheck := func(c *gin.Context) {
+			if mongoRepo == nil || !mongoRepo.IsConnected() {
+				c.AbortWithStatusJSON(http.StatusServiceUnavailable, gin.H{
+					"error":        "Database is initializing or reconnecting to MongoDB Atlas",
+					"details":      mongoRepo.GetLastError(),
+					"instructions": "Ensure MONGO_URI is configured correctly in Render dashboard settings.",
+				})
+				return
+			}
+			c.Next()
+		}
+
 		// Auth routes
-		auth := api.Group("/auth")
+		auth := api.Group("/auth", dbCheck)
 		{
 			auth.POST("/signup", authCtrl.Signup)
 			auth.POST("/login", authCtrl.Login)
@@ -113,7 +145,7 @@ func SetupRouter(
 		}
 
 		// Poll management routes
-		polls := api.Group("/polls")
+		polls := api.Group("/polls", dbCheck)
 		{
 			// Public / Audience endpoints
 			polls.GET("/share/:shareCode", middleware.OptionalAuthMiddleware(cfg.JWTSecret), pollCtrl.GetPollByShareCode)
